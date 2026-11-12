@@ -23,8 +23,14 @@
       place-items: center;
       padding: 24px;
       font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at 20% 20%, #1e3a8a 0%, var(--bg) 55%);
       color: var(--text);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(rgba(125, 211, 252, 0.28) 1.5px, transparent 1.6px),
+        radial-gradient(circle at 20% 20%, #1e3a8a 0%, var(--bg) 60%);
+      background-size: 26px 26px, 100% 100%;
+      background-position: 0 0, center;
+      background-attachment: fixed;
     }
 
     .card {
