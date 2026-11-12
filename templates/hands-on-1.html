@@ -103,6 +103,81 @@
       background: #22c55e;
       box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
     }
+
+    .scare-btn {
+      margin-top: 26px;
+      padding: 12px 30px;
+      border-radius: 999px;
+      border: 1px solid rgba(244, 63, 94, 0.5);
+      background: rgba(244, 63, 94, 0.12);
+      color: #fda4af;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .scare-btn:hover {
+      background: rgba(244, 63, 94, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .scare-btn:active { transform: translateY(1px); }
+
+    .scare-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      transform: none;
+    }
+
+    .scare-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      place-items: center;
+      background: radial-gradient(circle at 50% 45%, #7f1d1d 0%, #140404 70%, #000 100%);
+      overflow: hidden;
+    }
+
+    .scare-overlay.active {
+      display: grid;
+      animation: flash 0.14s steps(2) 7;
+    }
+
+    .scare-overlay.active .scare-face {
+      animation: lunge 0.55s cubic-bezier(0.2, 0, 0.4, 1) forwards;
+    }
+
+    .scare-face {
+      font-size: clamp(7rem, 38vw, 26rem);
+      line-height: 1;
+      filter: drop-shadow(0 0 40px rgba(248, 113, 113, 0.85));
+      user-select: none;
+    }
+
+    .scare-text {
+      position: absolute;
+      bottom: 8vh;
+      margin: 0;
+      font-size: clamp(1.4rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: #fecaca;
+      text-shadow: 0 0 24px rgba(248, 113, 113, 0.9);
+    }
+
+    @keyframes flash {
+      0%   { background-color: rgba(255, 255, 255, 0.9); }
+      100% { background-color: transparent; }
+    }
+
+    @keyframes lunge {
+      0%   { transform: scale(0.15) rotate(-14deg); opacity: 0.2; }
+      55%  { transform: scale(1.18) rotate(4deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -111,10 +186,57 @@
     <h1>Hello, this is a web app deployed at a local server!</h1>
     <p>Flask backend &middot; port 8000 &middot; reachable from your local network</p>
     <p class="student-id">Student ID &middot; <strong>124040087</strong></p>
+    <p class="student-id">Student ID &middot; <strong>124040085</strong></p>
     <div class="status">
       <span class="dot" aria-hidden="true"></span>
       <span>Server is running</span>
     </div>
+    <button id="scare-btn" class="scare-btn" type="button">Do not click</button>
   </main>
+
+  <div id="scare-overlay" class="scare-overlay" aria-hidden="true">
+    <div class="scare-face">&#128561;</div>
+    <p class="scare-text">Boo!</p>
+  </div>
+
+  <script>
+    (function () {
+      const btn = document.getElementById("scare-btn");
+      const overlay = document.getElementById("scare-overlay");
+
+      function playScream() {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(950, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.9);
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.1);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 1.2);
+
+        setTimeout(() => ctx.close(), 1500);
+      }
+
+      btn.addEventListener("click", function () {
+        overlay.classList.add("active");
+        overlay.setAttribute("aria-hidden", "false");
+        btn.disabled = true;
+        playScream();
+
+        setTimeout(function () {
+          overlay.classList.remove("active");
+          overlay.setAttribute("aria-hidden", "true");
+          btn.disabled = false;
+        }, 1600);
+      });
+    })();
+  </script>
 </body>
 </html>
